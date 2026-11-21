@@ -458,9 +458,13 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);}
     <div class="admin-section">
       <div class="as-header"><span class="as-icon">✏️</span><span class="as-title">Edit Stops</span></div>
       <div class="as-body">
-          <p style="font-size:.75rem;color:var(--muted);line-height:1.5;">Drag stop cards or use the arrows to reorder. Changes save on this device. To move your order to another device, export and import the configuration.</p>
+          <p style="font-size:.75rem;color:var(--muted);line-height:1.5;">Drag stop cards or use the arrows to reorder. Add, hide, restore, or permanently remove stops. Changes save on this device. To move your order to another device, export and import the configuration.</p>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;"><button class="ef-save" onclick="exportConfig()">Export configuration</button><button class="ef-save" onclick="document.getElementById('configImport').click()">Import configuration</button><input type="file" id="configImport" accept="application/json,.json" style="display:none" onchange="importConfig(event)"></div>
+          <button class="ef-save" style="width:100%;margin:.65rem 0;" onclick="addStop()">+ Add a stop</button>
           <div id="editList" style="display:flex;flex-direction:column;gap:.8rem;"></div>
+          <h3 style="font-size:.9rem;margin:1.2rem 0 .5rem;">Hidden stops</h3>
+          <p style="font-size:.75rem;color:var(--muted);">Hidden stops are excluded from the hunt but can be restored.</p>
+          <div id="hiddenStopList" style="display:flex;flex-direction:column;gap:.6rem;"></div>
         </div>
     </div>
   </div>
@@ -564,10 +568,11 @@ var ADMIN_PW = "dyna326";
 /* ─── STATE ─── */
 var HUNT_VERSION = 'birthday-2026-11-21-v1';
 if (localStorage.getItem('huntVersion') !== HUNT_VERSION) {
-  ['stops','cur','done','guessState','proxFired'].forEach(function(k){ localStorage.removeItem(k); });
+  ['stops','hiddenStops','cur','done','guessState','proxFired'].forEach(function(k){ localStorage.removeItem(k); });
   localStorage.setItem('huntVersion', HUNT_VERSION);
 }
 var STOPS = safeLoad('stops', DEFAULT_STOPS);
+var HIDDEN_STOPS = safeLoad('hiddenStops', []);
 var cur = safeLoadInt('cur', 0);
 var done = new Set(safeLoad('done', []));
 var guessState = safeLoad('guessState', {});
@@ -585,6 +590,7 @@ function safeLoadInt(key, fallback) {
 function saveAll() {
   try {
     localStorage.setItem('stops', JSON.stringify(STOPS));
+    localStorage.setItem('hiddenStops', JSON.stringify(HIDDEN_STOPS));
     localStorage.setItem('cur', String(cur));
     localStorage.setItem('done', JSON.stringify(Array.from(done)));
     localStorage.setItem('guessState', JSON.stringify(guessState));
@@ -1179,11 +1185,77 @@ function renderAdmin() {
       '<div style="display:flex;align-items:center;gap:.7rem;">' +
         '<button class="ef-save" onclick="saveStop(' + i + ')">Save</button>' +
         '<span class="ef-saved" id="esaved-' + i + '">✓ Saved!</span>' +
+        '<button class="reorder-btn" style="margin-left:auto;" onclick="hideStop(' + i + ')">Hide</button>' +
+        '<button class="reorder-btn" onclick="removeStop(' + i + ')">Remove</button>' +
       '</div>';
     editEl.appendChild(d);
   }
+  var hiddenEl = document.getElementById('hiddenStopList');
+  hiddenEl.innerHTML = '';
+  HIDDEN_STOPS.forEach(function(stop, i) {
+    var row = document.createElement('div');
+    row.className = 'edit-stop-card';
+    row.innerHTML = '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">' +
+      '<strong style="flex:1">' + escHtml(stop.name) + '</strong>' +
+      '<button class="reorder-btn" onclick="restoreStop(' + i + ')">Restore</button>' +
+      '<button class="reorder-btn" onclick="removeHiddenStop(' + i + ')">Remove</button></div>';
+    hiddenEl.appendChild(row);
+  });
 }
 
+function preserveStopEdits() {
+  STOPS.forEach(function(stop, i) {
+    var n=document.getElementById('ename-'+i), c=document.getElementById('eclue-'+i), h=document.getElementById('ehint-'+i);
+    if(n && c && h) {stop.name=n.value;stop.clue=c.value;stop.hint=h.value;}
+  });
+}
+function remapAfterRemoval(index) {
+  done = new Set(Array.from(done).filter(function(i){return i!==index;}).map(function(i){return i>index?i-1:i;}));
+  var next = {};
+  Object.keys(guessState).forEach(function(k){var i=Number(k);if(i!==index)next[i>index?i-1:i]=guessState[k];});
+  guessState=next;
+  proximityFired = new Set(Array.from(proximityFired).filter(function(i){return i!==index;}).map(function(i){return i>index?i-1:i;}));
+  if(cur>index)cur--;
+  else if(cur===index)cur=Math.min(index, STOPS.length-1);
+  cur=Math.max(0,Math.min(cur,STOPS.length-1));
+}
+function addStop() {
+  preserveStopEdits();
+  STOPS.push({
+    name:'New Stop', cat:'Surprise', clue:'Enter your clue here.',
+    hint:'Enter your hint here.', map:'https://www.google.com/maps',
+    lat:null,lng:null,r:200,optional:false,aliases:[],reveal:''
+  });
+  saveAll();renderAdmin();
+  var list=document.getElementById('editList');
+  if(list && list.lastElementChild)list.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function hideStop(i) {
+  if(STOPS.length<=1){alert('Keep at least one active stop.');return;}
+  preserveStopEdits();
+  var stop=STOPS.splice(i,1)[0];
+  HIDDEN_STOPS.push(stop);
+  remapAfterRemoval(i);
+  saveAll();renderAdmin();
+}
+function restoreStop(i) {
+  preserveStopEdits();
+  STOPS.push(HIDDEN_STOPS.splice(i,1)[0]);
+  saveAll();renderAdmin();
+}
+function removeStop(i) {
+  if(STOPS.length<=1){alert('Keep at least one active stop.');return;}
+  if(!confirm('Permanently remove "'+STOPS[i].name+'"? This cannot be undone unless you restore a previous configuration.'))return;
+  preserveStopEdits();
+  STOPS.splice(i,1);
+  remapAfterRemoval(i);
+  saveAll();renderAdmin();
+}
+function removeHiddenStop(i) {
+  if(!confirm('Permanently remove "'+HIDDEN_STOPS[i].name+'"?'))return;
+  HIDDEN_STOPS.splice(i,1);
+  saveAll();renderAdmin();
+}
 
 /* Reorder: keep completion/guess state attached to each stop. */
 var draggedStopIndex = -1;
@@ -1217,7 +1289,8 @@ function reorderStop(from,to) {
   saveAll(); renderAdmin();
 }
 function exportConfig() {
-  var data=JSON.stringify({version:HUNT_VERSION,stops:STOPS},null,2);
+  preserveStopEdits(); saveAll();
+  var data=JSON.stringify({version:HUNT_VERSION,stops:STOPS,hiddenStops:HIDDEN_STOPS},null,2);
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
   a.download='ericson-hunt-configuration.json'; document.body.appendChild(a); a.click();
   setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
@@ -1228,7 +1301,7 @@ function importConfig(e) {
     try {var config=JSON.parse(reader.result);
       if(!Array.isArray(config.stops)||!config.stops.length||!config.stops.every(function(s){return typeof s.name==='string'&&typeof s.clue==='string'&&typeof s.hint==='string'&&typeof s.map==='string';}))throw Error('Invalid stop data');
       if(!confirm('Replace the stop configuration on this device and reset progress?'))return;
-      STOPS=config.stops;done=new Set();cur=0;guessState={};proximityFired=new Set();saveAll();renderAdmin();
+      STOPS=config.stops;HIDDEN_STOPS=Array.isArray(config.hiddenStops)?config.hiddenStops:[];done=new Set();cur=0;guessState={};proximityFired=new Set();saveAll();renderAdmin();
     } catch(err){alert('Unable to import: '+err.message);} e.target.value='';
   }; reader.readAsText(file);
 }
