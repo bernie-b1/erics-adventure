@@ -314,7 +314,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);}
 <!-- SPLASH -->
 <div id="sSplash" class="screen">
   <p class="sp-tag">For Ericson · 11.21.26</p>
-<h1 class="sp-title">One Day,<br><em>One Adventure</em></h1>
+  <h1 class="sp-title">One Day,<br><em>One Adventure</em></h1>
   <div class="sp-date">DALLAS, TEXAS</div>
   <div class="sp-line"></div>
   <p class="sp-sub">Follow the clues. Trust the process. Try not to cheat. Dyna made this for you. 🌸</p>
@@ -478,30 +478,12 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);}
 
 /* ─── DATA ─── */
 var DEFAULT_STOPS = [
-  { name:"Katy Trail", cat:"🎾 Activity Stop",
-    clue:"You said you'd take Dyna bar-hopping on this trail. You also said you'd beat her at tennis. That's two claims that still need to be settled. Head to the trail — walk it, grab a drink at the ice house, and bring your competitive energy.",
-    hint:"The Katy Trail runs through Uptown Dallas. Tennis courts near the trailhead, Katy Trail Ice House right on the path.",
-    aliases:["katy","the trail","katy trail ice house","ice house"],
-    lat:32.8086,lng:-96.8093,r:320,
-    map:"https://www.google.com/maps/search/?api=1&query=Katy+Trail+Ice+House+Dallas+TX" },
-  { name:"Griggs Park", cat:"🌸 The One",
-    clue:"You already know where this is. There's a park where, on March 26th, 2026, you asked a very important question — and someone said yes. Go back. There's a blanket, a turkey sandwich, and a deck of UNO cards waiting. You said you'd smoke her at UNO. She's been thinking about that ever since.",
-    hint:"Griggs Park, near Deep Ellum. Look for the blanket Dyna set up before you arrived.",
-    aliases:["griggs","the park","where you asked","where you proposed","deep ellum park"],
-    lat:32.7902,lng:-96.7785,r:260,
-    map:"https://www.google.com/maps/search/?api=1&query=Griggs+Park+Dallas+TX" },
   { name:"Smoothie King", cat:"🥤 First Stop",
     clue:"First stop of the day and it's non-negotiable. You want 44oz and I will get you the 32oz instead 🩷",
     hint:"Find a convenient Smoothie King after the park stops. Mango Kale. You know the order.",
     aliases:["smoothie king","smoothie","mango kale","the smoothie place","smoothie king morgan"],
     lat:null,lng:null,r:300,
     map:"https://www.google.com/maps/search/?api=1&query=Smoothie+King+Dallas+TX" },
-  { name:"111 Morgan Ave", cat:"🏠 Shower & Get Ready",
-    clue:"You took me here after our first date and forced me to sleep with thunderstorm sounds in the background. We are going back to shower and get ready for the rest of your birthday.",
-    hint:"You already know where this is. Head home, shower, and get ready.",
-    aliases:["home","your place","morgan","111 morgan","the apartment","your apartment","morgan ave"],
-    lat:32.7915,lng:-96.8012,r:200,
-    map:"https://www.google.com/maps/search/?api=1&query=111+Morgan+Ave+Dallas+TX" },
   { name:"Olfactory NYC", cat:"🌿 Your Signature Scent",
     clue:"You always smell so good. Today we're making something that's yours. Follow your nose to the place where we get to create a fragrance together.",
     hint:"Olfactory NYC in Dallas. We're making a custom scent.",
@@ -514,12 +496,6 @@ var DEFAULT_STOPS = [
     aliases:["southwest farmers market","southwest farmers","farmers market","african grocery","nigerian grocery","chin chin"],
     lat:null,lng:null,r:300,
     map:"https://www.google.com/maps/search/?api=1&query=Southwest+Farmers+Market+Garland+TX" },
-  { name:"Half Price Books", cat:"📖 Book Stop",
-    clue:"The flagship. The store you could disappear into for two hours. Find a book for Dyna — she'll find one for you. No vetoing. When you pick it, write a note inside. That's the deal.",
-    hint:"Half Price Books flagship at 5803 E NW Hwy, Dallas TX 75231. Enormous store. Café inside too.",
-    aliases:["half price","half price books","the bookstore","used books","hpb","book store"],
-    lat:32.866231,lng:-96.764778,r:220,
-    map:"https://www.google.com/maps/search/?api=1&query=Half+Price+Books+5803+E+NW+Hwy+Dallas+TX" },
   { name:"Sandbox VR", cat:"🎮 Level Up",
     clue:"San Francisco. The suits. Full-body tracking. Completely ridiculous. Completely your idea of a great date. That was a good time — and now it's happening again. Find the place at Mockingbird Station, get suited up, and try not to embarrass yourself this time.",
     hint:"Sandbox VR at 5321 E Mockingbird Ln, Ste 110, Dallas — inside Mockingbird Station.",
@@ -543,7 +519,34 @@ var DEFAULT_STOPS = [
     hint:"Frankie's Downtown at 1303 Main St, Dallas TX 75202. Your order for her: French 75. Her order for you: her choice.",
     aliases:["frankies","frankies downtown","the sports bar","main street bar","the bar"],
     lat:32.78163,lng:-96.79887,r:210,
-    map:"https://www.google.com/maps/search/?api=1&query=Frankies+Downtown+1303+Main+St+Dallas+TX" }
+    map:"https://www.google.com/maps/search/?api=1&query=Frankies+Downtown+1303+Main+St+Dallas+TX" },
+  { name:"111 Morgan Ave", cat:"🏠 Shower & Get Ready",
+    clue:"You took me here after our first date and forced me to sleep with thunderstorm sounds in the background.",
+    hint:"You already know where this is. Head home, shower, and get ready.",
+    aliases:["home","your place","morgan","111 morgan","the apartment","your apartment","morgan ave"],
+    lat:32.7915,lng:-96.8012,r:200,
+    map:"https://www.google.com/maps/search/?api=1&query=111+Morgan+Ave+Dallas+TX" }
+];
+
+var DEFAULT_HIDDEN_STOPS = [
+  { name:"Katy Trail", cat:"🎾 Activity Stop",
+    clue:"You said you'd take Dyna bar-hopping on this trail. You also said you'd beat her at tennis. That's two claims that still need to be settled. Head to the trail — walk it, grab a drink at the ice house, and bring your competitive energy.",
+    hint:"The Katy Trail runs through Uptown Dallas. Tennis courts near the trailhead, Katy Trail Ice House right on the path.",
+    aliases:["katy","the trail","katy trail ice house","ice house"],
+    lat:32.8086,lng:-96.8093,r:320,
+    map:"https://www.google.com/maps/search/?api=1&query=Katy+Trail+Ice+House+Dallas+TX" },
+  { name:"Griggs Park", cat:"🌸 The One",
+    clue:"You already know where this is. There's a park where, on March 26th, 2026, you asked a very important question — and someone said yes. Go back. There's a blanket, a turkey sandwich, and a deck of UNO cards waiting. You said you'd smoke her at UNO. She's been thinking about that ever since.",
+    hint:"Griggs Park, near Deep Ellum. Look for the blanket Dyna set up before you arrived.",
+    aliases:["griggs","the park","where you asked","where you proposed","deep ellum park"],
+    lat:32.7902,lng:-96.7785,r:260,
+    map:"https://www.google.com/maps/search/?api=1&query=Griggs+Park+Dallas+TX" },
+  { name:"Half Price Books", cat:"📖 Book Stop",
+    clue:"The flagship. The store you could disappear into for two hours. Find a book for Dyna — she'll find one for you. No vetoing. When you pick it, write a note inside. That's the deal.",
+    hint:"Half Price Books flagship at 5803 E NW Hwy, Dallas TX 75231. Enormous store. Café inside too.",
+    aliases:["half price","half price books","the bookstore","used books","hpb","book store"],
+    lat:32.866231,lng:-96.764778,r:220,
+    map:"https://www.google.com/maps/search/?api=1&query=Half+Price+Books+5803+E+NW+Hwy+Dallas+TX" }
 ];
 
 var ROASTS = [
@@ -566,13 +569,13 @@ var BOOKINGS = [
 var ADMIN_PW = "dyna326";
 
 /* ─── STATE ─── */
-var HUNT_VERSION = 'birthday-2026-11-21-v1';
+var HUNT_VERSION = 'birthday-2026-11-21-custom-v2';
 if (localStorage.getItem('huntVersion') !== HUNT_VERSION) {
   ['stops','hiddenStops','cur','done','guessState','proxFired'].forEach(function(k){ localStorage.removeItem(k); });
   localStorage.setItem('huntVersion', HUNT_VERSION);
 }
 var STOPS = safeLoad('stops', DEFAULT_STOPS);
-var HIDDEN_STOPS = safeLoad('hiddenStops', []);
+var HIDDEN_STOPS = safeLoad('hiddenStops', DEFAULT_HIDDEN_STOPS);
 var cur = safeLoadInt('cur', 0);
 var done = new Set(safeLoad('done', []));
 var guessState = safeLoad('guessState', {});
